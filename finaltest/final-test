@@ -1,0 +1,66 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Đọc file vừa xuất từ R
+df = pd.read_csv("final_data_combined.csv")
+
+# Vẽ biểu đồ nhanh bằng Seaborn để kiểm tra
+sns.lmplot(data=df, x="Birth.rate", y="predicted_birth", line_kws={'color': 'red'})
+plt.title("Actual vs Predicted (Imported from R)")
+plt.show()
+
+dx = pd.read_csv("denmark_poland_comparison")
+dz = pd.read_csv("global_yearly_averages")
+
+# Sử dụng file: final_data_combined.csv
+plt.figure(figsize=(10, 7))
+sns.set_style("whitegrid")
+
+# Vẽ jointplot để thấy cả phân phối ở hai trục
+g = sns.jointplot(data=df, x="Birth.rate", y="predicted_birth", 
+                  kind="hex", scatter_kws={'alpha':0.3, 'color':'steelblue'},
+                  line_kws={'color':'red', 'label':'Regression Line'})
+# Thay đổi kind="hex"
+g = sns.jointplot(data=df, x="Birth.rate", y="predicted_birth", 
+                  kind="hex", color="steelblue")
+plt.subplots_adjust(top=0.9)
+g.fig.suptitle("Mật độ Tỷ lệ sinh: Thực tế vs Dự báo (Hexbin)", fontsize=12)
+plt.show()
+# Vẽ biểu đồ mật độ (KDE)
+g = sns.jointplot(data=df, x="Birth.rate", y="predicted_birth", 
+                  kind="kde", fill=True, cmap="Blues", thresh=0, levels=15)
+g.plot_joint(sns.regplot, scatter=False, color="red") # Thêm đường hồi quy lên trên
+plt.show()
+g = sns.jointplot(data=df, x="Birth.rate", y="predicted_birth", 
+                  kind="reg", 
+                  scatter_kws={
+                      'alpha': 0.1,    # Giảm xuống 0.1 để cực kỳ trong suốt
+                      's': 2,          # Giảm kích thước điểm (size) xuống còn 2
+                      'color': 'steelblue'
+                  },
+                  line_kws={'color': 'red'})
+plt.show()
+
+g.fig.suptitle("Actual vs Predicted Birth Rate", y=1.02, fontsize=14)
+g.set_axis_labels("Actual Birth Rate", "Predicted Birth Rate", fontsize=12)
+plt.show()
+
+# Sử dụng file: denmark_poland_comparison.csv
+plt.figure(figsize=(12, 6))
+sns.set_palette(["#1f77b4", "#ff7f0e"]) # Màu xanh và cam hiện đại
+
+sns.lineplot(data=dx, x="Year", y="Birth.rate", hue="Entity", style="Entity", markers=True, dashes=False)
+
+# Nhấn mạnh mốc 1991
+plt.axvline(1991, color='red', linestyle='--', alpha=0.7)
+plt.text(1991.5, dx['Birth.rate'].max(), 'Treatment (1991)', color='red', fontweight='bold')
+
+# Làm mờ vùng nền để tăng tính thẩm mỹ
+plt.fill_between(dx[dx['Entity'] == 'Denmark']['Year'], 
+                 dx[dx['Entity'] == 'Denmark']['Birth.rate'], alpha=0.1, color="#1f77b4")
+
+plt.title("Birth Rate Divergence: Denmark vs Poland", fontsize=14, pad=20)
+sns.despine() # Loại bỏ khung viền phía trên và bên phải
+plt.show()
+

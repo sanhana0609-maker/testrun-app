@@ -1,0 +1,22 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+
+# Thiết lập đường dẫn
+base_path = r"D:\EMJ 2025-2027\quantitivie research\python workshop\testrun-app"
+
+# Đọc file với đầy đủ đuôi .csv
+try:
+    dx = pd.read_csv(os.path.join(base_path, "denmark_poland_comparison.csv"))
+    df = pd.read_csv(os.path.join(base_path, "final_data_combined.csv"))
+    dz = pd.read_csv(os.path.join(base_path,"global_yearly_averages.csv"))
+    
+    # Vẽ biểu đồ Hexbin để tách các điểm chồng chéo
+    g = sns.jointplot(data=df, x="Birth.rate", y="predicted_birth", 
+                      kind="hex", cmap="mako", gridsize=30)
+    g.plot_joint(sns.regplot, scatter=False, color="red")
+    plt.show()
+    
+except FileNotFoundError as e:
+    print(f"Lỗi: Hãy kiểm tra lại file CSV trong thư mục. Chi tiết: {e}")
